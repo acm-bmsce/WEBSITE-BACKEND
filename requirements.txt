@@ -1,0 +1,12 @@
+fastapi 
+uvicorn 
+motor 
+beanie 
+python-dotenv 
+pydantic
+pymongo[srv]==3.12
+passlib[bcrypt] 
+python-jose 
+python-multipart
+email-validator
+bcrypt==4.0.1
