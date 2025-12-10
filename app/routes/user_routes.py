@@ -38,10 +38,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
 
 # --- DEPENDENCY: Check if Master Admin ---
 async def get_master_admin(current_user: User = Depends(get_current_user)):
-    # Simple check: assuming 'admin' is the master username
-    # You can also check roles here e.g. if current_user.role != 'master'
-    if current_user.username != "admin": 
-        raise HTTPException(status_code=403, detail="Not authorized")
+    # ✅ FIX: Check the ROLE, not the username
+    # This matches your database entry: "role": "master"
+    if current_user.role != "master": 
+        raise HTTPException(status_code=403, detail="Not authorized. Master Admin role required.")
     return current_user
 
 # ---------------------------------------------------------
@@ -75,8 +75,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     
-    # 2. Check Approval (Except for Master Admin)
-    if user.username != "admin" and not user.is_approved:
+    # 2. Check Approval (Allow "master" role to bypass)
+    # ✅ FIX: Check role here too
+    if user.role != "master" and not user.is_approved:
         raise HTTPException(status_code=401, detail="Account pending approval by Master Admin.")
 
     # 3. Generate Token

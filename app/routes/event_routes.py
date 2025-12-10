@@ -1,23 +1,25 @@
 from fastapi import APIRouter, HTTPException
-from typing import List
+from typing import List, Optional
 from app.models.event import Event, EventCreate, EventUpdate, EventResponse
 from datetime import datetime
 from beanie import PydanticObjectId
 
 router = APIRouter()
 
-# 1. GET EVENTS (With Pagination)
+# 1. GET EVENTS (With Pagination & Filtering)
 @router.get("/", response_model=List[EventResponse])
-async def get_events(limit: int = 20, skip: int = 0, featured: bool = None):
-    query = Event.find_all()
+async def get_events(limit: int = 20, skip: int = 0, featured: Optional[bool] = None):
+    # Start with a base query
+    query_filters = {}
     
-    # If featured=True is passed, return ONLY featured events
+    # If featured is strictly True or False, add to filter
     if featured is not None:
-        query = query.find(Event.is_featured == featured)
-        
-    # Sort by date (newest first)
-    events = await query.sort(-Event.date).skip(skip).limit(limit).to_list()
+        query_filters["is_featured"] = featured
+
+    # Execute Query: Find by filter -> Sort Newest First -> Skip/Limit
+    events = await Event.find(query_filters).sort(-Event.date).skip(skip).limit(limit).to_list()
     return events
+
 # 2. CREATE A NEW EVENT
 @router.post("/", response_model=EventResponse)
 async def create_event(event_data: EventCreate):
@@ -41,7 +43,10 @@ async def create_event(event_data: EventCreate):
         gallery=event_data.gallery,
         location=event_data.location,
         attendees=attendees_int,
-        registration_link=event_data.registration_link
+        registration_link=event_data.registration_link,
+        
+        # ✅ FIX: This was missing! Now it saves the featured status.
+        is_featured=event_data.is_featured 
     )
     
     await new_event.insert()

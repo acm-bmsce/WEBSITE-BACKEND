@@ -25,15 +25,23 @@ class InsightCreate(BaseModel):
     personName: str
     description: str
     image: Optional[str] = None
-    insta_link: Optional[str] = None # <--- Add here
+    insta_link: Optional[str] = None 
     
-    # Optional styling overrides
+    # ✅ ADDED: Missing styling fields
+    title: Optional[str] = "Insight Series"
     bgColor: Optional[str] = "rgba(125, 212, 238, 0.15)"
+    borderColor: Optional[str] = "#7dd4ee"
+    size: Optional[str] = "regular"
 
 # Schema for UPDATING
 class InsightUpdate(BaseModel):
     personName: Optional[str] = None
     description: Optional[str] = None
     image: Optional[str] = None
-    insta_link: Optional[str] = None # <--- Add here
+    insta_link: Optional[str] = None 
+    
+    # ✅ ADDED: Missing styling fields
+    title: Optional[str] = None
     bgColor: Optional[str] = None
+    borderColor: Optional[str] = None
+    size: Optional[str] = None

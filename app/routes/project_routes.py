@@ -6,17 +6,24 @@ from beanie import PydanticObjectId
 
 router = APIRouter()
 
-@router.post("/submit", response_model=Project)
-async def submit_project(project_data: ProjectCreate):
+@router.post("/", response_model=Project) # ✅ URL is now just /projects/
+async def create_project(project_data: ProjectCreate):
     new_project = Project(
         title=project_data.title,
         description=project_data.description,
-        team_members=project_data.team_members,
-        github_link=project_data.github_link,
-        demo_link=project_data.demo_link,
-        image_url=project_data.image_url,
-        status="PENDING"
+        
+        # ✅ Match the fields from your Pydantic Model (author, not team_members)
+        author=project_data.author, 
+        githubUrl=project_data.githubUrl,
+        imageUrl=project_data.imageUrl,
+        
+        categories=project_data.categories,
+        techStack=project_data.techStack,
+        
+        # ✅ Allow the script to set "APPROVED". Default to PENDING if missing.
+        status=project_data.status or "PENDING"
     )
+    
     await new_project.insert()
     return new_project
 
@@ -43,7 +50,7 @@ async def update_project(project_id: PydanticObjectId, project_data: ProjectCrea
     
     return project
 
-@router.get("/all", response_model=List[Project], dependencies=[Depends(get_master_admin)])
+@router.get("/", response_model=List[Project], dependencies=[Depends(get_master_admin)])
 async def get_all_projects(limit: int = 20, skip: int = 0):
     return await Project.find_all()\
         .sort(-Project.submission_date)\
