@@ -3,21 +3,24 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional
 
 class User(Document):
-    username: str = Indexed(unique=True) # Cannot have duplicate usernames
+    username: str = Indexed(unique=True)
     email: EmailStr = Indexed(unique=True)
     hashed_password: str
+    role: str = "coordinator"
+    is_approved: bool = False
     
-    # Roles: "master" or "coordinator"
-    role: str = "coordinator" 
-    
-    # Master is auto-approved; Coordinators start as False
-    is_approved: bool = False 
+    # 🟢 NEW: Tracks if they forgot their password
+    reset_requested: bool = False 
 
     class Settings:
         name = "users"
 
-# Schema for Registration Input
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
     password: str
+
+# 🟢 NEW: Schema for Admin to reset the password
+class AdminResetPassword(BaseModel):
+    user_id: str
+    new_password: str

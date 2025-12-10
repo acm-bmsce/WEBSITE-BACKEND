@@ -37,3 +37,14 @@ htmlcov/
 # Operating System specific files
 .DS_Store
 Thumbs.db   
+
+
+/scripts/*
+useradmin.py
+
+image_upload.py
+
+serviceAccountKey.json
+insight_upload.py
+events_upload.py
+project_upload.py

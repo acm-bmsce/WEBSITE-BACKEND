@@ -1,21 +1,22 @@
-import os
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
+# Import all your models
 from app.models.event import Event
 from app.models.project import Project
 from app.models.user import User
-from dotenv import load_dotenv
-
-load_dotenv()
+from app.models.insight import Insight
+from app.config import settings  # ✅ Import Settings
 
 async def init_db():
-    # Get URI from .env file
-    mongo_uri = os.getenv("MONGO_URI")
+    # ✅ Use the variable from config
+    client = AsyncIOMotorClient(settings.MONGO_URL)
     
-    client = AsyncIOMotorClient(mongo_uri)
-    
-    # Define your database name here (e.g., "club_website")
-    database = client.club_website 
-    
-    # Initialize Beanie with the Event model
-    await init_beanie(database, document_models=[Event,Project,User])
+    await init_beanie(
+        database=client.acm_website_db,
+        document_models=[
+            Event,
+            Project,
+            User,
+            Insight
+        ]
+    )

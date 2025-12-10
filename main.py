@@ -1,37 +1,45 @@
 from fastapi import FastAPI
-from app.database import init_db
-from app.routes import event_routes
 from fastapi.middleware.cors import CORSMiddleware
+from app.database import init_db
+
+# Import Config
+from app.config import settings # ✅ Import Settings
+
+# Import Routes
+from app.routes import event_routes
 from app.routes import project_routes
 from app.routes import user_routes
+from app.routes import insight_routes
 
 app = FastAPI()
 
-# Allow React to talk to FastAPI (CORS)
-# We allow localhost:3000 (standard React) and 5173 (Vite)
+# --- CORS CONFIGURATION ---
+# We allow localhost for development + the URL defined in .env for production
 origins = [
-    "http://localhost:3000",
-    "http://localhost:5173"
+    "http://localhost:3000",      # React Localhost
+    "http://localhost:5173",      # Vite Localhost
+    "http://127.0.0.1:3000",
+    settings.FRONTEND_URL         # ✅ The value from your .env file
 ]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],  # Allow all methods (GET, POST, etc.)
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Connect to Database when app starts
 @app.on_event("startup")
 async def start_db():
     await init_db()
 
-# Register the routes
-app.include_router(event_routes.router, prefix="/app/events", tags=["Events"])
-app.include_router(project_routes.router, prefix="/app/projects", tags=["Projects"])
+# Register Routes
+app.include_router(event_routes.router, prefix="/events", tags=["Events"])
+app.include_router(project_routes.router, prefix="/projects", tags=["Projects"])
 app.include_router(user_routes.router, prefix="/auth", tags=["Authentication"])
+app.include_router(insight_routes.router, prefix="/insights", tags=["Insights"])
 
 @app.get("/")
 def read_root():
-    return {"message": "Vitalyze Club Backend is Running!"}
+    return {"message": "ACM Club Backend is Running!"}
