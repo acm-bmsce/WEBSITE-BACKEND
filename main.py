@@ -15,11 +15,8 @@ app = FastAPI()
 
 # --- CORS CONFIGURATION ---
 # We allow localhost for development + the URL defined in .env for production
-origins = [
-    "http://localhost:3000",      # React Localhost
-    "http://localhost:5173",      # Vite Localhost
-    "http://127.0.0.1:3000",
-    settings.FRONTEND_URL         # ✅ The value from your .env file
+origins = [            
+    settings.FRONTEND_URL         
 ]
 
 app.add_middleware(
