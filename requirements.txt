@@ -6,8 +6,8 @@ python-dotenv
 pydantic
 pydantic-settings
 pymongo[srv]
-passlib[bcrypt]
 python-jose[cryptography]
 python-multipart
 email-validator
-bcrypt
+bcrypt==4.0.1
+passlib[bcrypt]

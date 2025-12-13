@@ -70,28 +70,20 @@ async def register(user_data: UserCreate):
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = await User.find_one(User.username == form_data.username)
-    print(f"Login Attempt for: {form_data.username}") # DEBUG 1
-    
     # 1. Check User Exists & Password
     if not user or not verify_password(form_data.password, user.hashed_password):
-        print("User NOT FOUND in Database") # DEBUG 2
         raise HTTPException(status_code=400, detail="Incorrect username or password")
-    print(f"User Found: {user.username}") # DEBUG 3
-    print(f"Stored Hash: {user.hashed_password}") # DEBUG 4
     # 2. Check Approval (Allow "master" role to bypass)
     # ✅ FIX: Check role here too
     if user.role != "master" and not user.is_approved:
         raise HTTPException(status_code=401, detail="Account pending approval by Master Admin.")
 
     # 3. Generate Token
-    
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
-
 # ---------------------------------------------------------
 # ADMIN MANAGEMENT ROUTES
 # ---------------------------------------------------------
-
 @router.get("/pending", dependencies=[Depends(get_master_admin)])
 async def get_pending_users():
     return await User.find(User.is_approved == False).to_list()
