@@ -15,7 +15,8 @@ app = FastAPI()
 
 # --- CORS CONFIGURATION ---
 # We allow localhost for development + the URL defined in .env for production
-origins = [     
+origins = [      
+    "http://localhost:5173",      
     settings.FRONTEND_URL         
 ]
 
@@ -26,6 +27,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/ping")
+def ping():
+    return {"status": "alive"}
 
 @app.on_event("startup")
 async def start_db():
