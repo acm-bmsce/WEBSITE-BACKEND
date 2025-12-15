@@ -15,7 +15,7 @@ app = FastAPI()
 
 # --- CORS CONFIGURATION ---
 # We allow localhost for development + the URL defined in .env for production
-origins = [            
+origins = [     
     settings.FRONTEND_URL         
 ]
 

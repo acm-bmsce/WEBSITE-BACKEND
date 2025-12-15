@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,Query
 from typing import List, Optional
 from app.models.event import Event, EventCreate, EventUpdate, EventResponse
 from datetime import datetime
@@ -8,16 +8,26 @@ router = APIRouter()
 
 # 1. GET EVENTS (With Pagination & Filtering)
 @router.get("/", response_model=List[EventResponse])
-async def get_events(limit: int = 20, skip: int = 0, featured: Optional[bool] = None):
-    # Start with a base query
+async def get_events(
+    limit: int = Query(20, ge=1, le=100),
+    skip: int = Query(0, ge=0),
+    featured: Optional[bool] = None,
+):
     query_filters = {}
-    
-    # If featured is strictly True or False, add to filter
+
+    # Featured filter (optional)
     if featured is not None:
         query_filters["is_featured"] = featured
 
-    # Execute Query: Find by filter -> Sort Newest First -> Skip/Limit
-    events = await Event.find(query_filters).sort(-Event.date).skip(skip).limit(limit).to_list()
+    events = (
+        await Event
+        .find(query_filters)
+        .sort(-Event.date)   # ✅ ALWAYS newest first
+        .skip(skip)
+        .limit(limit)
+        .to_list()
+    )
+
     return events
 
 # 2. CREATE A NEW EVENT

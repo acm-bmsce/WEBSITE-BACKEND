@@ -22,6 +22,13 @@ class Event(Document):
     class Settings:
         name = "events"
 
+        # ✅ MongoDB Indexes
+        indexes = [
+            "date",                     # For sorting by date
+            "is_featured",              # For filtering featured events
+            [("is_featured", 1), ("date", -1)]  # Featured + newest first
+        ]
+
     class Config:
         json_encoders = { datetime: lambda v: v.isoformat() }
 
