@@ -16,7 +16,7 @@ class Insight(Document):
     bgColor: str = "rgba(125, 212, 238, 0.15)"
     borderColor: str = "#7dd4ee"
     size: str = "regular"
-    year:Optional[str]="Alumini"
+    year:Optional[str]="Alumni"
     class Settings:
         name = "insights"
 
