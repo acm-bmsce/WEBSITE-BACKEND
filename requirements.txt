@@ -11,3 +11,5 @@ python-multipart
 email-validator
 bcrypt==4.0.1
 passlib[bcrypt]
+#pip install "beanie==1.23.6" "motor==3.3.1" "pymongo==4.5.0"
+#try this if you're on python3.12+
