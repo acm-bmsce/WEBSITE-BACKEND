@@ -2,12 +2,12 @@ fastapi
 uvicorn[standard]
 beanie==2.1.0
 motor==3.6.0
-pymongo==4.8.0
+pymongo==4.11.0
 pydantic>=2.0
 pydantic-settings
 python-dotenv
-python-jose[cryptography]
 python-multipart
 email-validator
 bcrypt==4.0.1
+python-jose[cryptography]
 passlib[bcrypt]
