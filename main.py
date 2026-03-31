@@ -29,6 +29,7 @@ app.add_middleware(
 )
 
 @app.get("/ping")
+@app.head("/ping")
 def ping():
     return {"status": "alive"}
 
