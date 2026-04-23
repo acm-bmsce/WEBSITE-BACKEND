@@ -15,9 +15,12 @@ class Event(Document):
     location: str
     attendees: int = 0
     registration_link: Optional[str] = None 
-    
-    # ✅ NEW: Marks event for the Carousel
     is_featured: bool = False 
+    
+    # ✅ FIX: These must be in the main Document class to save to MongoDB!
+    is_team_event: bool = False
+    registration_open: bool = True
+    registration_limit: int = 0
 
     class Settings:
         name = "events"
@@ -44,9 +47,11 @@ class EventCreate(BaseModel):
     location: str
     attendees: str | int = 0
     registration_link: Optional[str] = None
-    
-    # ✅ NEW
     is_featured: bool = False
+    
+    is_team_event: bool = False
+    registration_open: bool = True
+    registration_limit: int = 0
 
 # 3. Update Schema (Editing an Event)
 class EventUpdate(BaseModel):
@@ -60,9 +65,12 @@ class EventUpdate(BaseModel):
     location: Optional[str] = None
     attendees: Optional[int] = None
     registration_link: Optional[str] = None
-    
-    # ✅ NEW
     is_featured: Optional[bool] = None
+    
+    # ✅ FIX: Made these Optional for partial updates (PATCH requests)
+    is_team_event: Optional[bool] = None
+    registration_open: Optional[bool] = None
+    registration_limit: Optional[int] = None
 
 # 4. Response Schema (Sending to Frontend)
 class EventResponse(BaseModel):
@@ -77,9 +85,11 @@ class EventResponse(BaseModel):
     location: str
     attendees: int = 0
     registration_link: Optional[str] = None
-    
-    # ✅ NEW
     is_featured: bool = False
+    
+    is_team_event: bool = False
+    registration_open: bool = True
+    registration_limit: int = 0
     
     class Config:
         populate_by_name = True

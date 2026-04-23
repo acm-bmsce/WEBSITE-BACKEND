@@ -5,6 +5,7 @@ from app.models.event import Event
 from app.models.project import Project
 from app.models.user import User
 from app.models.insight import Insight
+from app.models.registration import Registration
 from app.config import settings  # ✅ Import Settings
 
 async def init_db():
@@ -17,6 +18,7 @@ async def init_db():
             Event,
             Project,
             User,
-            Insight
+            Insight,
+            Registration
         ]
     )

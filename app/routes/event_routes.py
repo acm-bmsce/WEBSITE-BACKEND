@@ -3,6 +3,7 @@ from typing import List, Optional
 from app.models.event import Event, EventCreate, EventUpdate, EventResponse
 from datetime import datetime
 from beanie import PydanticObjectId
+from app.models.registration import Registration,RegistrationCreate
 
 router = APIRouter()
 
@@ -97,3 +98,68 @@ async def delete_event(event_id: PydanticObjectId):
     
     await event.delete()
     return {"message": "Event deleted successfully"}
+
+# 5. EVENT REGISTRATION
+@router.post("/{event_id}/register")
+async def register_for_event(event_id: PydanticObjectId, reg_data: RegistrationCreate):
+    event = await Event.get(event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+        
+    # Check manual toggle
+    if not getattr(event, "registration_open", True):
+        raise HTTPException(status_code=400, detail="Registrations are closed for this event.")
+
+    # ✅ ENFORCE CAPACITY LIMIT ON BACKEND
+    limit = getattr(event, "registration_limit", 0)
+    if limit > 0:
+        current_count = await Registration.find({"event_id": event_id}).count()
+        if current_count >= limit:
+            raise HTTPException(status_code=400, detail="Registration full! The capacity limit has been reached.")
+
+    # Prevent duplicate registrations
+    existing_reg = await Registration.find_one({
+        "event_id": event_id, 
+        "email": reg_data.email
+    })
+    if existing_reg:
+        raise HTTPException(status_code=400, detail="Email already registered for this event.")
+
+    # Save the new registration
+    new_registration = Registration(
+        event_id=event_id,
+        is_team_event=reg_data.is_team_event,
+        team_name=reg_data.team_name,
+        name=reg_data.name,
+        email=reg_data.email,
+        phone=reg_data.phone,
+        usn=reg_data.usn,
+        department=reg_data.department
+    )
+    await new_registration.insert()
+    return {"message": "Successfully registered!"}
+
+@router.get("/{event_id}/registrations")
+async def get_registrations_for_event(event_id: PydanticObjectId):
+    # Find all registrations linked to this event
+    registrations = await Registration.find(Registration.event_id == event_id).to_list()
+    return registrations
+
+# 1.5 GET A SINGLE EVENT BY ID
+@router.get("/{event_id}", response_model=EventResponse)
+async def get_single_event(event_id: PydanticObjectId):
+    event = await Event.get(event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    # ✅ ENFORCE CAPACITY LIMIT ON UI: 
+    # If there's a limit, count current registrations.
+    limit = getattr(event, "registration_limit", 0)
+    if limit > 0 and getattr(event, "registration_open", True):
+        # Count how many people are already registered
+        current_count = await Registration.find({"event_id": event_id}).count()
+        if current_count >= limit:
+            # Tell the frontend the event is closed so it hides the form!
+            event.registration_open = False 
+            
+    return event
