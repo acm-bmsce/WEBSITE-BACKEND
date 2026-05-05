@@ -90,6 +90,7 @@ class EventResponse(BaseModel):
     is_team_event: bool = False
     registration_open: bool = True
     registration_limit: int = 0
+    registered_count: int = 0
     
     class Config:
         populate_by_name = True

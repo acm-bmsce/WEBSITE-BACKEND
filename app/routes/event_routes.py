@@ -4,6 +4,7 @@ from app.models.event import Event, EventCreate, EventUpdate, EventResponse
 from datetime import datetime
 from beanie import PydanticObjectId
 from app.models.registration import Registration,RegistrationCreate
+from app.services.pubsub import publish
 
 router = APIRouter()
 
@@ -28,7 +29,6 @@ async def get_events(
         .limit(limit)
         .to_list()
     )
-
     return events
 
 # 2. CREATE A NEW EVENT
@@ -137,6 +137,13 @@ async def register_for_event(event_id: PydanticObjectId, reg_data: RegistrationC
         department=reg_data.department
     )
     await new_registration.insert()
+    try:
+        publish({
+            "email": reg_data.email,
+            "event_name": event.title
+        })
+    except Exception as e:
+        print("Pub/sub failed: ",e)
     return {"message": "Successfully registered!"}
 
 @router.get("/{event_id}/registrations")
