@@ -1,0 +1,17 @@
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: website-backend
+  data:
+    mongodb:
+      uri: ${MONGO_URL} # Make sure MONGO_URL is exactly what you named it in your .env file
+      database: acm_website_db
+
+app:
+  security:
+    jwt:
+      secret-key: ${SECRET_KEY}
+      algorithm: ${ALGORITHM}
+      expiration-minutes: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+  frontend-url: ${FRONTEND_URL}
