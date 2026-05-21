@@ -5,8 +5,7 @@ spring:
     name: website-backend
   data:
     mongodb:
-      uri: ${MONGO_URL} # Make sure MONGO_URL is exactly what you named it in your .env file
-      database: acm_website_db
+      uri: ${MONGO_URL}
 
 app:
   security:
