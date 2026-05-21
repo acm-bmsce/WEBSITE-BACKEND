@@ -10,16 +10,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @SpringBootApplication
 @EnableConfigurationProperties(AppProperties.class) // ✅ Add this annotation
 public class Application {
-    @Value("${spring.data.mongodb.uri}")
-    private String mongoUri;
+
 
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
-    }
-
-    @PostConstruct
-    public void printMongoUri(){
-        System.out.println("Mongo URI: "+mongoUri);
     }
 
 }
