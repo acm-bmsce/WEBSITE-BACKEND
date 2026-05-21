@@ -10,5 +10,5 @@ import org.springframework.stereotype.Repository;
 public interface EventRepository extends MongoRepository<Event, String> {
 
     // Spring automatically handles finding by featured status and applying pagination/sorting
-    Page<Event> findByIsFeatured(boolean isFeatured, Pageable pageable);
+    Page<Event> findByFeatured(boolean isFeatured, Pageable pageable);
 }

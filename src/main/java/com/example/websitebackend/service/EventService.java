@@ -11,16 +11,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-
 @Service
 @RequiredArgsConstructor
 public class EventService {
 
     private final EventRepository eventRepository;
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
     public Page<Event> getEvents(int skip, int limit, Boolean featured) {
         // Spring uses PageRequest(page_number, size) instead of skip/limit
@@ -28,7 +23,7 @@ public class EventService {
         Pageable pageable = PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "date"));
 
         if (featured != null) {
-            return eventRepository.findByIsFeatured(featured, pageable);
+            return eventRepository.findByFeatured(featured, pageable); // ✅ Changed to match Event model (featured)
         }
         return eventRepository.findAll(pageable);
     }
@@ -38,11 +33,8 @@ public class EventService {
         event.setTitle(request.getTitle());
         event.setDescription(request.getDescription());
 
-        try {
-            event.setDate(LocalDate.parse(request.getDateStr(), DATE_FORMATTER).atStartOfDay());
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("Invalid date format. Use DD-MM-YYYY");
-        }
+        // ✅ Direct transfer! No more manual String parsing required
+        event.setDate(request.getDate());
 
         event.setImage(request.getImage());
         event.setFullDescription(request.getFullDescription());
@@ -50,11 +42,10 @@ public class EventService {
         if (request.getGallery() != null) event.setGallery(request.getGallery());
         event.setLocation(request.getLocation());
 
-        try {
-            if (request.getAttendees() != null) {
-                event.setAttendees(Integer.parseInt(request.getAttendees()));
-            }
-        } catch (NumberFormatException ignored) {}
+        // ✅ Direct transfer! No more try/catch for Integer parsing
+        if (request.getAttendees() != null) {
+            event.setAttendees(request.getAttendees());
+        }
 
         event.setRegistrationLink(request.getRegistrationLink());
         event.setFeatured(request.isFeatured());
@@ -69,12 +60,9 @@ public class EventService {
         if (request.getTitle() != null) event.setTitle(request.getTitle());
         if (request.getDescription() != null) event.setDescription(request.getDescription());
 
-        if (request.getDateStr() != null) {
-            try {
-                event.setDate(LocalDate.parse(request.getDateStr(), DATE_FORMATTER).atStartOfDay());
-            } catch (DateTimeParseException e) {
-                throw new IllegalArgumentException("Invalid date format. Use DD-MM-YYYY");
-            }
+        // ✅ Direct transfer! No more manual String parsing required
+        if (request.getDate() != null) {
+            event.setDate(request.getDate());
         }
 
         if (request.getImage() != null) event.setImage(request.getImage());
@@ -84,6 +72,8 @@ public class EventService {
         if (request.getLocation() != null) event.setLocation(request.getLocation());
         if (request.getAttendees() != null) event.setAttendees(request.getAttendees());
         if (request.getRegistrationLink() != null) event.setRegistrationLink(request.getRegistrationLink());
+
+        // ✅ Assuming your UpdateRequest DTO uses 'isFeatured' (Boolean)
         if (request.getIsFeatured() != null) event.setFeatured(request.getIsFeatured());
 
         return eventRepository.save(event);
